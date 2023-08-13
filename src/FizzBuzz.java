@@ -5,6 +5,7 @@ public class FizzBuzz {
     public static void main(String[] args) {
         int n = 15;
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
+        Object lock = new Object();
 
         Thread threadA = new Thread(() -> {
             for (int i = 1; i <= n; i++) {
@@ -43,12 +44,18 @@ public class FizzBuzz {
         });
 
         Thread threadD = new Thread(() -> {
-            for (int i = 1; i <= n; i++) {
-                try {
-                    String output = queue.take();
-                    System.out.println(output.isEmpty() ? i : output);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            synchronized (lock) {
+                for (int i = 1; i <= n; i++) {
+                    if (i % 3 != 0 && i % 5 != 0) {
+                        System.out.println(i);
+                    } else {
+                        try {
+                            String output = queue.take();
+                            System.out.println(output);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });
